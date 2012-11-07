@@ -7,6 +7,11 @@
  *
  */
 
+if (!defined('IN_PHPBB'))
+{
+	exit;
+}
+
 class QuotePostBackLink
 {
 	private $bbcode;
