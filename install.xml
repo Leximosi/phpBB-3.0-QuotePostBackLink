@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<?xml-stylesheet type="text/xsl" href="modx.prosilver.en.xsl"?>
+<?xml-stylesheet type="text/xsl" href="./modx.prosilver.en.xsl"?>
 <!--
 	For security purposes, please check: http://www.phpbb.com/mods/
 	for the latest version of this MOD. Although MODs are checked
@@ -140,7 +140,7 @@
 			</edit>
 			<edit>
 				<find><![CDATA['#\[quote(?:=&quot;(.*?)&quot;)?:$uid\]((?!\[quote(?:=&quot;]]></find>
-				<action type="replace-with"><![CDATA[				//-- Quote Post Back Link
+				<action type="replace-with"><![CDATA[						//-- Quote Post Back Link
 						//-- Delete:
 						/*
 							'#\[quote(?:=&quot;(.*?)&quot;)?:$uid\]((?!\[quote(?:=&quot;.*?&quot;)?:$uid\]).)?#ise'	=> "\$this->bbcode_second_pass_quote('\$1', '\$2')"
@@ -151,11 +151,11 @@
 			</edit>
 			<edit>
 				<find><![CDATA[static $replacements = array(]]></find>
-				<action type="after-add"><![CDATA[				//-- BEGIN Quote Post Back Link
-				//-- Add:
-				'quote_username_post_open'	=> array('{USERNAME}'	=> '$1', '{QPBL_POST}'	=> '$2', '{QPBL_TITLE}'	=> '$3'),
-				'quote_post_open'		=> array('{QPBL_POST}'	=> '$2', '{QPBL_TITLE}'		=> '$3'),
-				//-- END Quote Post Back Link]]></action>
+				<action type="after-add"><![CDATA[			//-- BEGIN Quote Post Back Link
+			//-- Add:
+			'quote_username_post_open'	=> array('{USERNAME}'	=> '$1', '{QPBL_POST}'	=> '$2', '{QPBL_TITLE}'	=> '$3'),
+			'quote_post_open'		=> array('{QPBL_POST}'	=> '$2', '{QPBL_TITLE}'		=> '$3'),
+			//-- END Quote Post Back Link]]></action>
 			</edit>
 		</open>
 
