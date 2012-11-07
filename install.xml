@@ -100,10 +100,10 @@
 		<copy>
 			<file from="root/includes/acp/acp_qpbl.php" to="includes/acp/acp_qpbl.php" />
 			<file from="root/includes/acp/info/acp_qpbl.php" to="includes/acp/info/acp_qpbl.php" />
-			<file from="root/includes/mods/QuotePostBackLink/QuotePostBackLink" to="includes/mods/QuotePostBackLink/QuotePostBackLink.php" />
+			<file from="root/includes/mods/QuotePostBackLink/QuotePostBackLink.php" to="includes/mods/QuotePostBackLink/QuotePostBackLink.php" />
 			<file from="root/install/install.php" to="install/install.php" />
 			<file from="root/language/en/mods/info_acp_qpbl.php" to="language/en/mods/info_acp_qpbl.php" />
-			<file from="root/umil/*.*" to="umil/*.*" />
+			<file from="root/umil/*" to="umil/*" />
 		</copy>
 
 		<open src="posting.php">
@@ -124,16 +124,19 @@
 
 		<open src="includes/bbcode.php">
 			<edit>
-				<find><![CDATA[		function bbcode_cache_init()
+				<find><![CDATA[	function bbcode_cache_init()
+	{
+		global $phpbb_root_path, $template, $user;]]></find>
+				<action type="after-add"><![CDATA[		//-- BEGIN Quote Post Back Link
+		//-- Add
+		global $qpbl;
+		if (!isset($this->qpbl) || $this->qpbl instanceof QuotePostBackLink === false)
 		{
-			global $phpbb_root_path, $template, $user;]]></find>
-				<action type="after-add"><![CDATA[		global $qpbl;
-			if (!isset($this->qpbl) || $this->qpbl instanceof qpbl === false)
-			{
-				global $cache, $config, $db, $user, $phpEx;
-					require "{$phpbb_root_path}includes/mods/QuotePostBackLink/QuotePostBackLink.{$phpEx}";
-				$this->qpbl = new QuotePostBackLink($cache, $config, $db, $user, $phpEx, $this);
-			}]]></action>
+			global $cache, $config, $db, $user, $phpEx;
+				require "{$phpbb_root_path}includes/mods/QuotePostBackLink/QuotePostBackLink.{$phpEx}";
+			$this->qpbl = new QuotePostBackLink($cache, $config, $db, $user, $phpEx, $this);
+		}
+		//-- END Quote Post Back Link]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA['#\[quote(?:=&quot;(.*?)&quot;)?:$uid\]((?!\[quote(?:=&quot;]]></find>
@@ -143,7 +146,7 @@
 							'#\[quote(?:=&quot;(.*?)&quot;)?:$uid\]((?!\[quote(?:=&quot;.*?&quot;)?:$uid\]).)?#ise'	=> "\$this->bbcode_second_pass_quote('\$1', '\$2')"
 						*/
 						//-- Add:
-							'#\[quote(?:=&quot;(.*?)&quot;)?(?:;p=([0-9]+))?:$uid\]((?!\[quote(?:=&quot;.*?&quot;)?(?:;p=([0-9]+))?:$uid\]).)?#ise'	=> "\$this->qpbl->bbcode_second_pass_quote('\$1', '\$2', '\$3')",
+							'#\[quote(?:=&quot;(.*?)&quot;)?(?:;p=(.*?))?:$uid\]((?!\[quote(?:=&quot;.*?&quot;)?(?:;p=([0-9]+))?:$uid\]).)?#ise'	=> "\$this->qpbl->bbcode_second_pass_quote('\$1', '\$2', '\$3')",
 						//-- End Quote Post Back Link]]></action>
 			</edit>
 			<edit>
@@ -163,7 +166,7 @@
 			//-- Quote Post Back Link
 			//-- Delete:
 			/*
-				'quote'			=> array('bbcode_id' => 0,	'regexp' => array('#\[quote(?:=&quot;(.*?)&quot;)?\](.+)\[/quote\]#ise' => "\$this->bbcode_quote('\$0')")),
+			'quote'			=> array('bbcode_id' => 0,	'regexp' => array('#\[quote(?:=&quot;(.*?)&quot;)?\](.+)\[/quote\]#ise' => "\$this->bbcode_quote('\$0')")),
 			*/
 			//-- Add:
 			'quote'			=> array('bbcode_id' => 0, 'regexp' => array('#\[quote(?:=&quot;(.*?)&quot;)?(?:;p=([0-9]+))?\](.+)\[/quote\]#ise' => "\$this->bbcode_quote('\$0')")),
@@ -171,14 +174,14 @@
 			</edit>
 			<edit>
 				<find><![CDATA[$in = preg_replace('#quote=&quot;(.*?)&quot;\]#ie']]></find>
-				<action type="replace-with"><![CDATA[//-- BEGIN Quote Post Back Link
-				//-- Delete:
-				/*
-				$in = preg_replace('#quote=&quot;(.*?)&quot;\]#ie', "'quote=&quot;' . str_replace(array('[', ']', '\\\"'), array('&#91;', '&#93;', '\"'), '\$1') . '&quot;]'", $in);
-				*/
-				//-- Add:
-				$in = preg_replace('#quote=&quot;(.*?)&quot;p=([0-9]+)#ie', "'quote&quot;' . str_replace(array('[', ']', '\\\"', array('&#91;', '&#93;', '\"'), '\$1') . '&quot;]'", $in);
-				//-- END Quote Post Back Link]]></action>
+				<action type="replace-with"><![CDATA[		//-- BEGIN Quote Post Back Link
+		//-- Delete:
+		/*
+		$in = preg_replace('#quote=&quot;(.*?)&quot;\]#ie', "'quote=&quot;' . str_replace(array('[', ']', '\\\"'), array('&#91;', '&#93;', '\"'), '\$1') . '&quot;]'", $in);
+		*/
+		//-- Add:
+		$in = preg_replace('#quote=&quot;(.*?)&quot;p=([0-9]+)#ie', "'quote&quot;' . str_replace(array('[', ']', '\\\"', array('&#91;', '&#93;', '\"'), '\$1') . '&quot;]'", $in);
+		//-- END Quote Post Back Link]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[else if (preg_match('#^quote(?:=&quot;(.*?)&quot;)?]]></find>
@@ -186,7 +189,7 @@
 				//-- Quote Post Back Link
 				//-- Delete:
 				/*
-					else if (preg_match('#^quote(?:=&quot;(.*?)&quot;)?$#is', $buffer, $m) && substr($out, -1, 1) == '[')
+				else if (preg_match('#^quote(?:=&quot;(.*?)&quot;)?$#is', $buffer, $m) && substr($out, -1, 1) == '[')
 				*/
 				//-- Add:
 				else if (preg_match('#^quote(?:=&quot;(.*?)&quot;)?(?:;p=([0-9]+))?$#is', $buffer, $m) && substr($out, -1, 1) == '[')
@@ -195,14 +198,14 @@
 			<edit>
 				<find><![CDATA[$out .= 'quote=&quot;' . $username . '&quot;:' . $this->bbcode_uid . ']';]]></find>
 				<action type="replace-with"><![CDATA[						//-- BEGIN Quote Post Back Link
-				//-- Delete:
-				/*
-				$out .= 'quote=&quot;' . $username . '&quot;:' . $this->bbcode_uid . ']';
-				*/
-				//-- Add:
-				$post_id = (isset($m[2]) && $m[2]) ? ";p={$m[2]}" : '';
-				$out .= "quote=&quot;{$username}&quot;{$post_id}:{$this->bbcode_uid}]";
-				//-- END Quote Post Back Link]]>
+						//-- Delete:
+						/*
+						$out .= 'quote=&quot;' . $username . '&quot;:' . $this->bbcode_uid . ']';
+						*/
+						//-- Add:
+						$post_id = (isset($m[2]) && $m[2]) ? ";p={$m[2]}" : '';
+						$out .= "quote=&quot;{$username}&quot;{$post_id}:{$this->bbcode_uid}]";
+						//-- END Quote Post Back Link]]>
 				</action>
 			</edit>
 		</open>
