@@ -22,24 +22,33 @@
 			<author>
 				<realname>Erik Frèrejean</realname>
 				<username>Erik Frèrejean</username>
-				<homepage>http://www.erikfrerejean.nl</homepage>
+				<homepage>http://leximosi.github.com</homepage>
 				<contributions-group>
 					<contributions status="current" from="2008-12-21"/>
 				</contributions-group>
 			</author>
 		</author-group>
 
-		<mod-version>2.0.0.5</mod-version>
+		<mod-version>2.1.0</mod-version>
 
 		<installation>
 			<level>easy</level>
 			<time>180</time>
-			<target-version>3.0.8</target-version>
+			<target-version>3.0.11</target-version>
 		</installation>
 
 		<history>
 			<entry>
-			<date>2010-12-25</date>
+				<date>2012-11-07</date>
+				<rev-version>2.1.0</rev-version>
+				<changelog lang="en">
+					<change>Updated for phpBB 3.0.11.</change>
+					<change>Various tweakt throughout the MOD.</change>
+					<change>Updated UMIL.</change>
+				</changelog>
+			</entry>
+			<entry>
+				<date>2010-12-25</date>
 				<rev-version>2.0.0.5</rev-version>
 				<changelog lang="en">
 					<change>[Add] MOD installer.</change>
@@ -81,7 +90,7 @@
 				<date>2010-12-02</date>
 				<rev-version>2.0.0</rev-version>
 				<changelog lang="en">
-					<change>Complete rewrite of the MOD</change>
+					<change>Complete rewrite of the MOD.</change>
 				</changelog>
 			</entry>
 		</history>
@@ -91,6 +100,7 @@
 		<copy>
 			<file from="root/includes/acp/acp_qpbl.php" to="includes/acp/acp_qpbl.php" />
 			<file from="root/includes/acp/info/acp_qpbl.php" to="includes/acp/info/acp_qpbl.php" />
+			<file from="root/includes/mods/QuotePostBackLink/QuotePostBackLink" to="includes/mods/QuotePostBackLink/QuotePostBackLink.php" />
 			<file from="root/install/install.php" to="install/install.php" />
 			<file from="root/language/en/mods/info_acp_qpbl.php" to="language/en/mods/info_acp_qpbl.php" />
 			<file from="root/umil/*.*" to="umil/*.*" />
@@ -114,15 +124,27 @@
 
 		<open src="includes/bbcode.php">
 			<edit>
+				<find><![CDATA[		function bbcode_cache_init()
+		{
+			global $phpbb_root_path, $template, $user;]]></find>
+				<action type="after-add"><![CDATA[		global $qpbl;
+			if (!isset($this->qpbl) || $this->qpbl instanceof qpbl === false)
+			{
+				global $cache, $config, $db, $user, $phpEx;
+					require "{$phpbb_root_path}includes/mods/QuotePostBackLink/QuotePostBackLink.{$phpEx}";
+				$this->qpbl = new QuotePostBackLink($cache, $config, $db, $user, $phpEx, $this);
+			}]]></action>
+			</edit>
+			<edit>
 				<find><![CDATA['#\[quote(?:=&quot;(.*?)&quot;)?:$uid\]((?!\[quote(?:=&quot;]]></find>
 				<action type="replace-with"><![CDATA[				//-- Quote Post Back Link
-				//-- Delete:
-				/*
-					'#\[quote(?:=&quot;(.*?)&quot;)?:$uid\]((?!\[quote(?:=&quot;.*?&quot;)?:$uid\]).)?#ise'	=> "\$this->bbcode_second_pass_quote('\$1', '\$2')"
-				*/
-				//-- Add:
-				'#\[quote(?:=&quot;(.*?)&quot;)?(?:;p=([0-9]+))?:$uid\]((?!\[quote(?:=&quot;.*?&quot;)?(?:;p=([0-9]+))?:$uid\]).)?#ise'	=> "\$this->qpbl_bbcode_second_pass_quote('\$1', '\$2', '\$3')"
-				//-- End Quote Post Back Link]]></action>
+						//-- Delete:
+						/*
+							'#\[quote(?:=&quot;(.*?)&quot;)?:$uid\]((?!\[quote(?:=&quot;.*?&quot;)?:$uid\]).)?#ise'	=> "\$this->bbcode_second_pass_quote('\$1', '\$2')"
+						*/
+						//-- Add:
+							'#\[quote(?:=&quot;(.*?)&quot;)?(?:;p=([0-9]+))?:$uid\]((?!\[quote(?:=&quot;.*?&quot;)?(?:;p=([0-9]+))?:$uid\]).)?#ise'	=> "\$this->qpbl->bbcode_second_pass_quote('\$1', '\$2', '\$3')",
+						//-- End Quote Post Back Link]]></action>
 			</edit>
 			<edit>
 				<find><![CDATA[static $replacements = array(]]></find>
@@ -132,122 +154,11 @@
 				'quote_post_open'		=> array('{QPBL_POST}'	=> '$2', '{QPBL_TITLE}'		=> '$3'),
 				//-- END Quote Post Back Link]]></action>
 			</edit>
-			<edit>
-				<find><![CDATA[}
-
-?>]]></find>
-				<action type="before-add"><![CDATA[
-	//-- Quote Post Back Link
-	//-- Add:
-	/**
-	* Second parse quote tag
-	* QPBL Style
-	*/
-	public function qpbl_bbcode_second_pass_quote($username, $post_id, $quote)
-	{
-		global $cache, $config, $db, $user;
-		global $phpEx;
-
-		// Disabled?
-		if (empty($config['qpbl_enable']))
-		{
-			return $this->bbcode_second_pass_quote($username, $quote);
-		}
-
-		// when using the /e modifier, preg_replace slashes double-quotes but does not
-		// seem to slash anything else
-		$quote = str_replace('\"', '"', $quote);
-		$username = str_replace('\"', '"', $username);
-
-		// Cache links so that we don't have to call append sid every time
-		static $link_format = '';
-		if (empty($link_format))
-		{
-			$link_format = append_sid(generate_board_url() . '/viewtopic.' . $phpEx, array('f' => '%3$d', 't' => '%2$d', 'p' => '%1$d', '#' => 'p%1$d'));
-		}
-
-		// remove newline at the beginning
-		if ($quote == "\n")
-		{
-			$quote = '';
-		}
-
-		// See whether this post actually exists
-		$qpbl_posts = $cache->get('_qpbl');
-		if ($post_id && ($qpbl_posts === false || !isset($qpbl_posts[$post_id])))
-		{
-			$sql = 'SELECT post_id, topic_id, forum_id, post_subject, post_time
-				FROM ' . POSTS_TABLE . '
-				WHERE post_id = ' . (int) $post_id;
-			$result	= $db->sql_query($sql);
-			$data	= $db->sql_fetchrow($result);
-			$db->sql_freeresult($result);
-
-			if ($data !== false)
-			{
-				$qpbl_posts[$data['post_id']] = $data;
-
-				// Cache it
-				$cache->put('_qpbl', $qpbl_posts);
-			}
-		}
-
-		// Prepare the information
-		$replace = array();
-		if ($username)
-		{
-			$replace['$1'] = $username;
-		}
-
-		if (!empty($qpbl_posts[$post_id]))
-		{
-			$replace['$2']		= vsprintf($link_format, $qpbl_posts[$post_id]);
-			if ($config['qpbl_display'] == 'date')
-			{
-				// Need to replace the `L_IN` manually
-				$replace[$user->lang('IN')]	= strtolower($user->lang('ON'));
-				$replace['$3']	= $user->format_date($qpbl_posts[$post_id]['post_time']);
-			}
-			else
-			{
-				$replace['$3']	= censor_text($qpbl_posts[$post_id]['post_subject']);
-			}
-			
-			// Force lowercase?
-			if (!empty($config['qpbl_l_case']))
-			{
-				$replace['$3']	= strtolower($replace['$3']);
-			}
-		}
-
-		// Select the correct template switch
-		$tpl = '';
-		if (sizeof($replace) >= 3)
-		{
-			$tpl = 'quote_username_post_open';
-		}
-		else if (empty($replace['$1']) && !empty($replace['$2']) && !empty($replace['$3']))
-		{
-			$tpl = 'quote_post_open';
-		}
-		else if (!empty($replace['$1']) && empty($replace['$2']) && empty($replace['$3']))
-		{
-			$tpl = 'quote_username_open';
-		}
-		else
-		{
-			return $this->bbcode_tpl('quote_open') . $quote;
-		}
-
-		return str_replace(array_keys($replace), $replace, $this->bbcode_tpl($tpl)) . $quote;
-	}
-	//-- End Quote Post Back Link]]></action>
-			</edit>
 		</open>
 
 		<open src="includes/message_parser.php">
 			<edit>
-				<find>'quote'			=> array('bbcode_id' => 0,</find>
+				<find><![CDATA['quote'			=> array('bbcode_id' => 0,]]></find>
 				<action type="replace-with"><![CDATA[
 			//-- Quote Post Back Link
 			//-- Delete:

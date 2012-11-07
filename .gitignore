@@ -1,6 +1,0 @@
-*.diff
-*.patch
-*.zip
-
-.DS_Store
-*~
