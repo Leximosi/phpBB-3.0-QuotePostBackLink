@@ -103,7 +103,7 @@
 			<file from="root/includes/mods/QuotePostBackLink/QuotePostBackLink.php" to="includes/mods/QuotePostBackLink/QuotePostBackLink.php" />
 			<file from="root/install/install.php" to="install/install.php" />
 			<file from="root/language/en/mods/info_acp_qpbl.php" to="language/en/mods/info_acp_qpbl.php" />
-			<file from="root/umil/*" to="umil/*" />
+			<file from="root/umil/*.*" to="umil/*.*" />
 		</copy>
 
 		<open src="posting.php">
