@@ -16,9 +16,9 @@ umil:
 	fi;
 
 	git clone git://github.com/phpbb/umil.git ./vendor/umil
-	cd ./vendor/umil
-	git checkout v1.0.4
-	cd ./../../
+	cd ./vendor/umil; \
+	git checkout v1.0.4; \
+	cd ./../../;
 
 modx:
 	if [ -a ./vendor/modx/.git ]; \
@@ -27,9 +27,9 @@ modx:
 	fi;
 
 	git clone git://github.com/phpbb/modx.git ./vendor/modx
-	cd ./vendor/modx/
-	git checkout v1.2.5
-	cd ./../../
+	cd ./vendor/modx/; \
+	git checkout v1.2.5; \
+	cd ./../../;
  
 build: umil modx
 	# Copy UMIL into place
