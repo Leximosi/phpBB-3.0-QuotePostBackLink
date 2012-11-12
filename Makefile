@@ -9,6 +9,8 @@ VERSION			= 2.1.0
 PACKAGENAME		= QuotePostBackLink.zip
 PACKAGEFILES	= install.xml license.txt modx.prosilver.en.xsl root
 
+MPV	= https://www.phpbb.com/mods/mpv/index.php
+
 CURL	= /usr/bin/curl
 GIT		= /usr/bin/git
 
@@ -17,7 +19,7 @@ GIT		= /usr/bin/git
 
 default: .title build
 
-build: getumil getmodx
+build: clean getumil getmodx
 	@echo "Building package"
 	@zip -r "./$(PACKAGENAME)" $(PACKAGEFILES)
 
@@ -26,7 +28,7 @@ clean:
 
 mpv: build
 	@echo "\n\nBuild package and send it to mpv to validate it"
-	@$(CURL) --form url_request=@"./$(PACKAGENAME)" --form submit=Submit https://www.phpbb.com/mods/mpv/index.php > ./mpv.tmp
+	@$(CURL) --form url_request=@"./$(PACKAGENAME)" --form submit=Submit $(MPV) > ./mpv.tmp
 	@sed 's/^<title>.*/<base href="https:\/\/www.phpbb.com\/"><title>/' ./mpv.tmp > ./mpv.html
 	-rm ./mpv.tmp
 
