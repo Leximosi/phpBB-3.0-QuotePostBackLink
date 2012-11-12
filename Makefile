@@ -1,45 +1,45 @@
-#
+#	  	
 # @author Erik Frèrejean (Erik Frèrejean) erikfrerejean@phpbb.com
 # @copyright (c) 2012 Erik Frèrejean ( N/A )
 # @license http://opensource.org/licenses/gpl-license.php GNU Public License
 #
- 
-all: clean build
+
+MODNAME			= Quote Post Back Link
+VERSION			= 2.1.0
+PACKAGENAME		= QuotePostBackLink.zip
+PACKAGEFILES	= install.xml license.txt modx.prosilver.en.xsl root
+
+CURL	= /usr/bin/curl
+GIT		= /usr/bin/git
+
+.title:
+	@echo "$(MODNAME) - $(VERSION)\n"
+
+default: .title build
+
+build: getumil getmodx
+	@echo "Building package"
+	@zip -r "./$(PACKAGENAME)" $(PACKAGEFILES)
 
 clean:
-	git clean -fd
+	@$(GIT) clean -fd
 
-umil:
-	if [ -a ./vendor/umil/.git ]; \
-	then \
-		rm -rf ./vendor/umil; \
-	fi;
+mpv: build
+	@echo "\n\nBuild package and send it to mpv to validate it"
+	@$(CURL) --form url_request=@"./$(PACKAGENAME)" --form submit=Submit https://www.phpbb.com/mods/mpv/index.php > ./mpv.tmp
+	@sed 's/^<title>.*/<base href="https:\/\/www.phpbb.com\/"><title>/' ./mpv.tmp > ./mpv.html
+	-rm ./mpv.tmp
 
-	git clone git://github.com/phpbb/umil.git ./vendor/umil
-	cd ./vendor/umil; \
-	git checkout v1.0.4; \
-	cd ./../../;
+getumil:
+	@echo "Preparing the umil files"
+	-rm -rf ./vendor/umil
+	@$(GIT) clone git://github.com/phpbb/umil.git ./vendor/umil
+	@cd ./vendor/umil && git fetch origin && $(GIT) checkout v1.0.4
+	@cp -r ./vendor/umil/umil/root/umil ./root/umil
 
-modx:
-	if [ -a ./vendor/modx/.git ]; \
-	then \
-		rm -rf ./vendor/modx; \
-	fi;
-
-	git clone git://github.com/phpbb/modx.git ./vendor/modx
-	cd ./vendor/modx/; \
-	git checkout v1.2.5; \
-	cd ./../../;
- 
-build: umil modx
-	# Copy UMIL into place
-	mv ./vendor/umil/umil/root/umil ./root/umil
-
-	# Copy modx into place
+getmodx:
+	@echo "Preparing the modx files"
+	-rm -rf ./vendor/modx
+	@$(GIT) clone git://github.com/phpbb/modx.git ./vendor/modx
+	@cd ./vendor/modx && git fetch origin && $(GIT) checkout v1.2.5
 	cp ./vendor/modx/modx.prosilver.en.xsl ./modx.prosilver.en.xsl
-
-	# Delete the vendor dir
-	rm -rf ./vendor/
-
-	# Package
-	zip -r ./QuotePostBackLink.zip install.xml license.txt modx.prosilver.en.xsl root
