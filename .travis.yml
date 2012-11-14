@@ -3,6 +3,8 @@ php:
   - 5.4
 
 before_script:
+  - make getumil
+  - make getmodx
   - git clone git://github.com/Leximosi/MPVTester.git ./MPVTester
 
 script:
