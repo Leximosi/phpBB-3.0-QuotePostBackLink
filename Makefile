@@ -36,7 +36,7 @@ getumil:
 	@echo "Preparing the umil files"
 	-rm -rf ./vendor/umil
 	@$(GIT) clone git://github.com/phpbb/umil.git ./vendor/umil
-	@cd ./vendor/umil && git fetch origin && $(GIT) checkout v1.0.4
+	@cd ./vendor/umil && git fetch origin && $(GIT) checkout v1.0.5
 	@cp -r ./vendor/umil/umil/root/umil ./root/umil
 
 getmodx:
