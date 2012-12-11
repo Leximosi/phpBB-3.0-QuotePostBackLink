@@ -12,7 +12,7 @@ if (!defined('IN_PHPBB'))
 	exit;
 }
 
-class QuotePostBackLink
+class quote_post_back_link
 {
 	private $bbcode;
 	private $cache;

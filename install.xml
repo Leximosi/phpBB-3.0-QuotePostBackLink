@@ -39,11 +39,18 @@
 
 		<history>
 			<entry>
+				<date>2012-12-11</date>
+				<rev-version>2.1.1</rev-version>
+				<changelog lang="en">
+					<change>Some minor corrections after validation of v2.1.0.</change>
+				</changelog>
+			</entry>
+			<entry>
 				<date>2012-11-07</date>
 				<rev-version>2.1.0</rev-version>
 				<changelog lang="en">
 					<change>Updated for phpBB 3.0.11.</change>
-					<change>Various tweakt throughout the MOD.</change>
+					<change>Various tweaks throughout the MOD.</change>
 					<change>Updated UMIL.</change>
 				</changelog>
 			</entry>
@@ -100,7 +107,7 @@
 		<copy>
 			<file from="root/includes/acp/acp_qpbl.php" to="includes/acp/acp_qpbl.php" />
 			<file from="root/includes/acp/info/acp_qpbl.php" to="includes/acp/info/acp_qpbl.php" />
-			<file from="root/includes/mods/QuotePostBackLink/QuotePostBackLink.php" to="includes/mods/QuotePostBackLink/QuotePostBackLink.php" />
+			<file from="root/includes/mods/quote_post_back_link/quote_post_back_link.php" to="includes/mods/quote_post_back_link/quote_post_back_link.php" />
 			<file from="root/install/install.php" to="install/install.php" />
 			<file from="root/language/en/mods/info_acp_qpbl.php" to="language/en/mods/info_acp_qpbl.php" />
 			<file from="root/umil/*.*" to="umil/*.*" />
@@ -130,11 +137,11 @@
 				<action type="after-add"><![CDATA[		//-- BEGIN Quote Post Back Link
 		//-- Add
 		global $qpbl;
-		if (!isset($this->qpbl) || $this->qpbl instanceof QuotePostBackLink === false)
+		if (!isset($this->qpbl) || $this->qpbl instanceof quote_post_back_link === false)
 		{
 			global $cache, $config, $db, $user, $phpEx;
-				require "{$phpbb_root_path}includes/mods/QuotePostBackLink/QuotePostBackLink.{$phpEx}";
-			$this->qpbl = new QuotePostBackLink($cache, $config, $db, $user, $phpEx, $this);
+				require "{$phpbb_root_path}includes/mods/quote_post_back_link/quote_post_back_link.{$phpEx}";
+			$this->qpbl = new quote_post_back_link($cache, $config, $db, $user, $phpEx, $this);
 		}
 		//-- END Quote Post Back Link]]></action>
 			</edit>
