@@ -55,8 +55,8 @@ $language_file = 'mods/info_acp_qpbl';
 * The version numbering must otherwise be compatible with the version_compare function - http://php.net/manual/en/function.version-compare.php
 */
 $versions = array(
-	'2.1.0'		=> array(
-	),
+	'2.1.1'		=> array(),
+	'2.1.0'		=> array(),
 	'2.0.0.5'	=> array(
 
 		'module_add' => array(

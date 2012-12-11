@@ -5,7 +5,7 @@
 #
 
 MODNAME			= Quote Post Back Link
-VERSION			= 2.1.0
+VERSION			= 2.1.1
 PACKAGENAME		= QuotePostBackLink.zip
 PACKAGEFILES	= install.xml license.txt modx.prosilver.en.xsl root
 
