@@ -9,6 +9,9 @@ VERSION			= 2.1.0
 PACKAGENAME		= QuotePostBackLink.zip
 PACKAGEFILES	= install.xml license.txt modx.prosilver.en.xsl root
 
+UMILTAG	= v1.0.5
+MODXTAG	= v1.2.5
+
 MPV	= https://www.phpbb.com/mods/mpv/index.php
 
 CURL	= /usr/bin/curl
@@ -36,12 +39,12 @@ getumil:
 	@echo "Preparing the umil files"
 	-rm -rf ./vendor/umil
 	@$(GIT) clone git://github.com/phpbb/umil.git ./vendor/umil
-	@cd ./vendor/umil && git fetch origin && $(GIT) checkout v1.0.5
+	@cd ./vendor/umil && git fetch origin && $(GIT) checkout $(UMILTAG)
 	@cp -r ./vendor/umil/umil/root/umil ./root/umil
 
 getmodx:
 	@echo "Preparing the modx files"
 	-rm -rf ./vendor/modx
 	@$(GIT) clone git://github.com/phpbb/modx.git ./vendor/modx
-	@cd ./vendor/modx && git fetch origin && $(GIT) checkout v1.2.5
+	@cd ./vendor/modx && git fetch origin && $(GIT) checkout $(MODXTAG)
 	cp ./vendor/modx/modx.prosilver.en.xsl ./modx.prosilver.en.xsl
